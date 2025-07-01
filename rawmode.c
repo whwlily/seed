@@ -15,7 +15,6 @@ void die(const char *s) {
 // 恢复终端设置
 void disableRawMode() {
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios) == -1) {
-        // 不能用die，因为可能在exit时调用
         write(STDOUT_FILENO, "无法恢复终端设置\n", 24);
     }
 }
@@ -31,7 +30,7 @@ void enableRawMode() {
     raw.c_cflag |= (CS8);
     raw.c_lflag &= ~(ECHO | ICANON | ISIG | IEXTEN);
     raw.c_cc[VMIN] = 0;
-    raw.c_cc[VTIME] = 10; // 0.1秒超时
+    raw.c_cc[VTIME] = 10; // 1秒超时
 
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) die("tcsetattr");
 }
