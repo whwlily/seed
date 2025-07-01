@@ -17,18 +17,21 @@ int printAsciiLoop(char *buf, int maxlen) {
 
     int len = 0;
     while (len < maxlen - 1) {
+        //Linux系统直接读取键盘输入
         char c;
-        ssize_t nread = read(STDIN_FILENO, &c, 1);
+        ssize_t nread = read(STDIN_FILENO, &c, 1);//单字节设置为1
         if (nread == -1 && errno != EAGAIN) break;
         if (nread == 0) continue;
 
 
         printf("你按下的ASCII码: %d\r\n", (unsigned char)c);
-        fflush(stdout);
+        fflush(stdout);//强制刷新缓冲区
 
         if (c == 'q') {
+
             write(STDOUT_FILENO, "\x1b[2J", 4);
             write(STDOUT_FILENO, "\x1b[H", 3);
+
             printf("退出ASCII显示，进入编辑器...\n");
             fflush(stdout);
             break;
@@ -46,11 +49,11 @@ int main(int argc, char *argv[]) {
     char *filename = NULL;
     if (argc >= 2) {
         filename = argv[1];
-        FILE *fp = fopen(argv[1], "r");
+        FILE *fp = fopen(argv[1], "r");//打开文件
         if (fp) {
-            fseek(fp, 0, SEEK_END);
-            initlen = ftell(fp);
-            fseek(fp, 0, SEEK_SET);
+            fseek(fp, 0, SEEK_END);//移动到文件末尾
+            initlen = ftell(fp);//获取文件长度
+            fseek(fp, 0, SEEK_SET);//
             initbuf = malloc(initlen + 1);
             if (initbuf) {
                 fread(initbuf, 1, initlen, fp);
@@ -59,7 +62,7 @@ int main(int argc, char *argv[]) {
             fclose(fp);
         }
     }
-
+    //处理默认内容
     if (!initbuf) {
         char buf[MAX_INIT_LEN];
         initlen = printAsciiLoop(buf, MAX_INIT_LEN);
@@ -67,13 +70,14 @@ int main(int argc, char *argv[]) {
         strcpy(buf, "Hello, World!");
         initlen = strlen(buf);
     }
-        initbuf = strdup(buf);
+
+        initbuf = strdup(buf);//复制内容到initbuf
     }
 
     write(STDOUT_FILENO, "\x1b[2J", 4);
     write(STDOUT_FILENO, "\x1b[H", 3);
 
-    editorProcessInputLoop(initbuf, initlen, filename ? filename : "");
+    editorProcessInputLoop(initbuf, initlen, filename ? filename : "");//主编辑循环
 
     free(initbuf);
     return 0;

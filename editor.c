@@ -21,7 +21,7 @@ enum editorKey {
     END_KEY,
     PAGE_UP,
     PAGE_DOWN,
-    DEL_KEY // 新增
+    DEL_KEY 
 };
 
 struct abuf {
@@ -40,14 +40,6 @@ static void abAppend(struct abuf *ab, const char *s, int len) {
 static void abFree(struct abuf *ab) {
     free(ab->b);
 }
-
-// 删除的内容：
-// void die(const char *s) {
-//     perror(s);
-//     exit(1);
-// }
-
-// 只保留声明（如果需要）：
 void die(const char *s);
 
 // 多行文本缓冲区
@@ -153,7 +145,7 @@ static void drawStatusBar(struct abuf *ab, const char *filename, int total_lines
     abAppend(ab, "\r\n", 2);
 }
 
-// 修改 editorDrawRows，使用 renderLineWithTab 渲染每一行
+//editorDrawRows，使用 renderLineWithTab 渲染每一行
 static void editorDrawRows(struct abuf *ab, int screenrows) {
     char renderbuf[MAX_COLS * TAB_STOP + 1];
     for (int y = 0; y < screenrows - 2; y++) { // 留2行给状态栏和消息栏
@@ -271,19 +263,21 @@ void editorProcessInputLoop(const char *initbuf, int initlen, const char *filena
         if (i == initlen || initbuf[i] == '\n' || initbuf[i] == '\r') {
             int linelen = i - start;
             if (linelen > MAX_COLS - 1) linelen = MAX_COLS - 1;
-            memcpy(lines[total_lines], &initbuf[start], linelen);
+            memcpy(lines[total_lines], &initbuf[start], linelen);//内存拷贝
             line_len[total_lines] = linelen;
             total_lines++;
             start = i + 1;
         }
     }
+    //初始化设置
     if (total_lines == 0) total_lines = 1; // 至少一行
     cx = 0;
     cy = 0;
 
     // 文件名赋值
-    if (filename && filename[0]) strncpy(current_filename, filename, sizeof(current_filename)-1);
+    if (filename && filename[0]) strncpy(current_filename, filename, sizeof(current_filename)-1);//安全拷贝
 
+    //终端尺寸获取
     int screenrows, screencols;
     getWindowSize(&screenrows, &screencols);
 
